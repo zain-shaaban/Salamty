@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import { OtpType } from '../../common/enums/otp-type.enum.js';
 
 const OTP_EXPIRY_MINUTES = 10;
 const BCRYPT_ROUNDS = 10;
@@ -22,28 +21,28 @@ export class OtpService {
     return bcrypt.compare(plain, hash);
   }
 
-  async createOtp(userId: string, type: OtpType): Promise<string> {
+  async createOtp(userId: string): Promise<string> {
     const otp = this.generateOtp();
     const hashedOtp = await this.hashValue(otp);
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
     await this.prisma.userAuthOtp.create({
-      data: { userId, otp: hashedOtp, type, expiresAt },
+      data: { userId, otp: hashedOtp, expiresAt },
     });
 
     return otp;
   }
 
-  async invalidatePreviousOtps(userId: string, type: OtpType): Promise<void> {
+  async invalidatePreviousOtps(userId: string): Promise<void> {
     await this.prisma.userAuthOtp.updateMany({
-      where: { userId, type, isUsed: false },
+      where: { userId, isUsed: false },
       data: { isUsed: true },
     });
   }
 
-  async validateAndConsumeOtp(userId: string, otp: string, type: OtpType): Promise<boolean> {
+  async validateAndConsumeOtp(userId: string, otp: string): Promise<boolean> {
     const record = await this.prisma.userAuthOtp.findFirst({
-      where: { userId, type, isUsed: false, expiresAt: { gt: new Date() } },
+      where: { userId, isUsed: false, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: 'desc' },
     });
 

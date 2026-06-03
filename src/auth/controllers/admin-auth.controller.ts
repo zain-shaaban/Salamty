@@ -1,11 +1,19 @@
-import { Controller, Post, Body, Req, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import type { Request } from 'express';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service.js';
-import { AdminLoginDto } from '../dto/admin-login.dto.js';
-import { ForgotPasswordDto } from '../dto/forgot-password.dto.js';
-import { NewPasswordDto } from '../dto/new-password.dto.js';
-import { ResendOtpDto } from '../dto/resend-otp.dto.js';
+import { AdminLoginDto } from '../dto/requests/admin-login.dto.js';
+import { ForgotPasswordDto } from '../dto/requests/forgot-password.dto.js';
+import { NewPasswordDto } from '../dto/requests/new-password.dto.js';
+import { ResendOtpDto } from '../dto/requests/resend-otp.dto.js';
+import { AdminLoginSuccessResponseDto } from '../dto/responses/admin-login-response.dto.js';
+import { MessageSuccessResponseDto } from '../dto/responses/message-success-response.dto.js';
+import { ApiErrorResponseDto } from '../../common/dto/responses/api-error-response.dto.js';
 
 @ApiTags('Admin Auth')
 @Controller('admin/auth')
@@ -15,13 +23,16 @@ export class AdminAuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin login' })
-  login(@Body() dto: AdminLoginDto, @Req() req: Request) {
-    return this.authService.adminLogin(dto, req.headers['user-agent'], req.ip);
+  @ApiOkResponse({ type: AdminLoginSuccessResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  login(@Body() dto: AdminLoginDto) {
+    return this.authService.adminLogin(dto);
   }
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request OTP for password reset' })
+  @ApiOkResponse({ type: MessageSuccessResponseDto })
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.adminForgotPassword(dto.email);
   }
@@ -29,6 +40,16 @@ export class AdminAuthController {
   @Post('new-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set new password using OTP' })
+  @ApiOkResponse({
+    type: MessageSuccessResponseDto,
+    schema: {
+      example: {
+        success: true,
+        data: { message: 'Password updated successfully' },
+      },
+    },
+  })
+  @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   newPassword(@Body() dto: NewPasswordDto) {
     return this.authService.adminNewPassword(dto);
   }
@@ -36,6 +57,15 @@ export class AdminAuthController {
   @Post('resend-otp')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Resend OTP' })
+  @ApiOkResponse({
+    type: MessageSuccessResponseDto,
+    schema: {
+      example: {
+        success: true,
+        data: { message: 'OTP resent' },
+      },
+    },
+  })
   resendOtp(@Body() dto: ResendOtpDto) {
     return this.authService.adminResendOtp(dto.email);
   }

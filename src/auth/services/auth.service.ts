@@ -9,9 +9,8 @@ import { PrismaService } from '../../prisma/prisma.service.js';
 import { OtpService } from './otp.service.js';
 import { SessionService } from './session.service.js';
 import { Role } from '../../common/enums/role.enum.js';
-import { OtpType } from '../../common/enums/otp-type.enum.js';
-import type { AdminLoginDto } from '../dto/admin-login.dto.js';
-import type { NewPasswordDto } from '../dto/new-password.dto.js';
+import type { AdminLoginDto } from '../dto/requests/admin-login.dto.js';
+import type { NewPasswordDto } from '../dto/requests/new-password.dto.js';
 
 const BCRYPT_ROUNDS = 12;
 
@@ -24,8 +23,10 @@ export class AuthService {
     private readonly sessionService: SessionService,
   ) {}
 
-  async adminLogin(dto: AdminLoginDto, deviceInfo?: string, ipAddress?: string) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+  async adminLogin(dto: AdminLoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
 
     if (!user || user.role !== Role.ADMIN) {
       throw new UnauthorizedException('Invalid credentials');
@@ -43,9 +44,10 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, role: user.role };
     const authToken = this.jwtService.sign(payload);
 
-    await this.sessionService.createSession(user.id, authToken, deviceInfo, ipAddress);
+    await this.sessionService.createSession(user.id, authToken);
 
-    const { password: _password, ...safeUser } = user;
+    const { password: _unused, ...safeUser } = user;
+    void _unused;
     return { authToken, user: safeUser };
   }
 
@@ -53,7 +55,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (user && user.role === Role.ADMIN) {
-      const otp = await this.otpService.createOtp(user.id, OtpType.FORGOT_PASSWORD);
+      const otp = await this.otpService.createOtp(user.id);
       console.log(`[OTP] Forgot password OTP for ${email}: ${otp}`);
     }
 
@@ -61,7 +63,9 @@ export class AuthService {
   }
 
   async adminNewPassword(dto: NewPasswordDto): Promise<{ message: string }> {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
 
     if (!user || user.role !== Role.ADMIN) {
       throw new BadRequestException('Invalid request');
@@ -70,7 +74,6 @@ export class AuthService {
     const isValid = await this.otpService.validateAndConsumeOtp(
       user.id,
       dto.otp,
-      OtpType.FORGOT_PASSWORD,
     );
 
     if (!isValid) {
@@ -90,8 +93,8 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (user && user.role === Role.ADMIN) {
-      await this.otpService.invalidatePreviousOtps(user.id, OtpType.FORGOT_PASSWORD);
-      const otp = await this.otpService.createOtp(user.id, OtpType.FORGOT_PASSWORD);
+      await this.otpService.invalidatePreviousOtps(user.id);
+      const otp = await this.otpService.createOtp(user.id);
       console.log(`[OTP] Resend OTP for ${email}: ${otp}`);
     }
 

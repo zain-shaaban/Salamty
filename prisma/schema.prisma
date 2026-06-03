@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -10,11 +11,6 @@ datasource db {
 enum Role {
   ADMIN
   USER
-}
-
-enum OtpType {
-  FORGOT_PASSWORD
-  EMAIL_VERIFICATION
 }
 
 model User {
@@ -38,25 +34,22 @@ model UserAuthOtp {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   otp       String
-  type      OtpType
   expiresAt DateTime
   isUsed    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  @@index([userId, type])
+  @@index([userId])
   @@index([userId, isUsed])
 }
 
 model UserSession {
-  id         String   @id @default(uuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token      String
-  deviceInfo String?
-  ipAddress  String?
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([token])

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
-import { AppController } from './app.controller.js';
+import { AppController } from './app/app.controller.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
 
@@ -12,7 +12,10 @@ import { AuthModule } from './auth/auth.module.js';
       pinoHttp: {
         transport:
           process.env.NODE_ENV !== 'production'
-            ? { target: 'pino-pretty', options: { colorize: true, singleLine: true } }
+            ? {
+                target: 'pino-pretty',
+                options: { colorize: true, singleLine: true },
+              }
             : undefined,
         level: process.env.NODE_ENV !== 'production' ? 'debug' : 'info',
         redact: ['req.headers.authorization'],

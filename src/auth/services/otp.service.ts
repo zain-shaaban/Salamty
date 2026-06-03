@@ -1,16 +1,24 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 const OTP_EXPIRY_MINUTES = 10;
 const BCRYPT_ROUNDS = 10;
+const DEV_OTP = '111111';
 
 @Injectable()
 export class OtpService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   generateOtp(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    if (this.configService.get<string>('NODE_ENV') === 'production') {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+    return DEV_OTP;
   }
 
   async hashValue(value: string): Promise<string> {

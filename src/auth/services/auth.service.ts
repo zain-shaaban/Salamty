@@ -34,6 +34,16 @@ export class AuthService {
   async adminLogin(dto: AdminLoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        password: true,
+      },
     });
 
     if (!user || user.role !== Role.ADMIN) {
@@ -54,11 +64,10 @@ export class AuthService {
 
     await this.sessionService.createSession(user.id, authToken);
 
-    const { password: _p, secretKey: _s, ...safeUser } = user;
+    const { password: _p, ...adminUser } = user;
     void _p;
-    void _s;
 
-    return { authToken, user: safeUser };
+    return { authToken, user: adminUser };
   }
 
   async adminForgotPassword(email: string): Promise<{ message: string }> {

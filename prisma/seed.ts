@@ -28,6 +28,7 @@ async function main() {
       password: hashedPassword,
       role: 'ADMIN',
       isActive: true,
+      confirmed: true,
     },
   });
 

@@ -6,6 +6,7 @@ import {
   ApiBadRequestResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Public } from '../../common/decorators/public.decorator.js';
 import { AuthService } from '../services/auth.service.js';
 import { AdminLoginDto } from '../dto/requests/admin-login.dto.js';
 import { ForgotPasswordDto } from '../dto/requests/forgot-password.dto.js';
@@ -16,6 +17,7 @@ import { MessageSuccessResponseDto } from '../dto/responses/message-success-resp
 import { ApiErrorResponseDto } from '../../common/dto/responses/api-error-response.dto.js';
 
 @ApiTags('Admin Auth')
+@Public()
 @Controller('admin/auth')
 export class AdminAuthController {
   constructor(private readonly authService: AuthService) {}

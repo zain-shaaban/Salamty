@@ -7,6 +7,8 @@ import { OtpService } from './services/otp.service.js';
 import { SessionService } from './services/session.service.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
 import { AdminAuthController } from './controllers/admin-auth.controller.js';
+import { UserAuthController } from './controllers/user-auth.controller.js';
+import { MailModule } from '../mail/mail.module.js';
 
 @Module({
   imports: [
@@ -17,12 +19,16 @@ import { AdminAuthController } from './controllers/admin-auth.controller.js';
       useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN', '7d') as any,
+          expiresIn: configService.get<string>(
+            'JWT_EXPIRES_IN',
+            '7d',
+          ) as unknown as number,
         },
       }),
     }),
+    MailModule,
   ],
-  controllers: [AdminAuthController],
+  controllers: [AdminAuthController, UserAuthController],
   providers: [AuthService, OtpService, SessionService, JwtStrategy],
   exports: [AuthService, JwtModule],
 })

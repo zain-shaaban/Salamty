@@ -1,0 +1,94 @@
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { AuthService } from '../services/auth.service.js';
+import { UserRegisterDto } from '../dto/requests/user-register.dto.js';
+import { UserLoginDto } from '../dto/requests/user-login.dto.js';
+import { VerifyEmailDto } from '../dto/requests/verify-email.dto.js';
+import { ForgotPasswordDto } from '../dto/requests/forgot-password.dto.js';
+import { NewPasswordDto } from '../dto/requests/new-password.dto.js';
+import { ResendOtpDto } from '../dto/requests/resend-otp.dto.js';
+import { UserLoginSuccessResponseDto } from '../dto/responses/user-login-response.dto.js';
+import { MessageSuccessResponseDto } from '../dto/responses/message-success-response.dto.js';
+import { ApiErrorResponseDto } from '../../common/dto/responses/api-error-response.dto.js';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import type { AuthenticatedUser } from '../../common/decorators/current-user.decorator.js';
+
+@ApiTags('User Auth')
+@Controller('auth')
+export class UserAuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  @Public()
+  @Post('register')
+  @ApiOperation({ summary: 'Register a new user account' })
+  @ApiCreatedResponse({ type: MessageSuccessResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  register(@Body() dto: UserRegisterDto) {
+    return this.authService.userRegister(dto);
+  }
+
+  @Public()
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify email using OTP' })
+  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  @ApiBadRequestResponse({ type: ApiErrorResponseDto })
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.userVerifyEmail(dto);
+  }
+
+  @Public()
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'User login' })
+  @ApiOkResponse({ type: UserLoginSuccessResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  login(@Body() dto: UserLoginDto) {
+    return this.authService.userLogin(dto);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request OTP for password reset' })
+  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.userForgotPassword(dto.email);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset password using OTP' })
+  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  @ApiBadRequestResponse({ type: ApiErrorResponseDto })
+  resetPassword(@Body() dto: NewPasswordDto) {
+    return this.authService.userResetPassword(dto);
+  }
+
+  @Public()
+  @Post('resend-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resend OTP (verification or password reset)' })
+  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  resendOtp(@Body() dto: ResendOtpDto) {
+    return this.authService.userResendOtp(dto.email);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout current user' })
+  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  logout(@CurrentUser() user: AuthenticatedUser) {
+    return this.authService.userLogout(user.id);
+  }
+}

@@ -5,6 +5,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { SettingsModule } from './settings/settings.module.js';
 import { QueuesModule } from './queues/queues.module.js';
 import { MailModule } from './mail/mail.module.js';
 import { FcmModule } from './fcm/fcm.module.js';
@@ -32,6 +33,7 @@ import { RolesGuard } from './common/guards/roles.guard.js';
     MailModule,
     FcmModule,
     AuthModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -5,6 +5,7 @@ import {
   ApiOkResponse,
   ApiCreatedResponse,
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -17,7 +18,14 @@ import { ForgotPasswordDto } from '../dto/requests/forgot-password.dto.js';
 import { NewPasswordDto } from '../dto/requests/new-password.dto.js';
 import { ResendOtpDto } from '../dto/requests/resend-otp.dto.js';
 import { UserLoginSuccessResponseDto } from '../dto/responses/user-login-response.dto.js';
-import { MessageSuccessResponseDto } from '../dto/responses/message-success-response.dto.js';
+import {
+  ForgotPasswordSuccessResponseDto,
+  LogoutSuccessResponseDto,
+  RegisterSuccessResponseDto,
+  ResendOtpSuccessResponseDto,
+  ResetPasswordSuccessResponseDto,
+  VerifyEmailSuccessResponseDto,
+} from '../dto/responses/auth-message-response.dto.js';
 import { ApiErrorResponseDto } from '../../common/dto/responses/api-error-response.dto.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../../common/decorators/current-user.decorator.js';
@@ -30,7 +38,7 @@ export class UserAuthController {
   @Public()
   @Post('register')
   @ApiOperation({ summary: 'Register a new user account' })
-  @ApiCreatedResponse({ type: MessageSuccessResponseDto })
+  @ApiCreatedResponse({ type: RegisterSuccessResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
   register(@Body() dto: UserRegisterDto) {
     return this.authService.userRegister(dto);
@@ -39,8 +47,12 @@ export class UserAuthController {
   @Public()
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Verify email using OTP' })
-  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  @ApiOperation({
+    summary: 'Verify email using OTP',
+    description:
+      'Returns "Email verified successfully. You can now log in." on success, or "Email already verified" if the account was already confirmed.',
+  })
+  @ApiOkResponse({ type: VerifyEmailSuccessResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   verifyEmail(@Body() dto: VerifyEmailDto) {
     return this.authService.userVerifyEmail(dto);
@@ -60,7 +72,7 @@ export class UserAuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request OTP for password reset' })
-  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  @ApiOkResponse({ type: ForgotPasswordSuccessResponseDto })
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.userForgotPassword(dto.email);
   }
@@ -69,7 +81,7 @@ export class UserAuthController {
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password using OTP' })
-  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  @ApiOkResponse({ type: ResetPasswordSuccessResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   resetPassword(@Body() dto: NewPasswordDto) {
     return this.authService.userResetPassword(dto);
@@ -79,15 +91,17 @@ export class UserAuthController {
   @Post('resend-otp')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Resend OTP (verification or password reset)' })
-  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  @ApiOkResponse({ type: ResendOtpSuccessResponseDto })
   resendOtp(@Body() dto: ResendOtpDto) {
     return this.authService.userResendOtp(dto.email);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout current user' })
-  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  @ApiOkResponse({ type: LogoutSuccessResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   logout(@CurrentUser() user: AuthenticatedUser) {
     return this.authService.userLogout(user.id);
   }

@@ -6,9 +6,29 @@ import {
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UpdateAppConfigDto } from './dto/requests/update-app-config.dto.js';
 
+const APP_CONFIG_SELECT = {
+  lastVersion: true,
+  requiredVersion: true,
+  downloadURL: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 @Injectable()
 export class SettingsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getAppConfig() {
+    const config = await this.prisma.appConfig.findFirst({
+      select: APP_CONFIG_SELECT,
+    });
+
+    if (!config) {
+      throw new NotFoundException('App config not found');
+    }
+
+    return config;
+  }
 
   async updateAppConfig(dto: UpdateAppConfigDto) {
     const data = Object.fromEntries(
@@ -27,6 +47,7 @@ export class SettingsService {
     return this.prisma.appConfig.update({
       where: { id: existing.id },
       data,
+      select: APP_CONFIG_SELECT,
     });
   }
 }

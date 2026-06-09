@@ -13,7 +13,11 @@ import { ForgotPasswordDto } from '../dto/requests/forgot-password.dto.js';
 import { NewPasswordDto } from '../dto/requests/new-password.dto.js';
 import { ResendOtpDto } from '../dto/requests/resend-otp.dto.js';
 import { AdminLoginSuccessResponseDto } from '../dto/responses/admin-login-response.dto.js';
-import { MessageSuccessResponseDto } from '../dto/responses/message-success-response.dto.js';
+import {
+  ForgotPasswordSuccessResponseDto,
+  NewPasswordSuccessResponseDto,
+  ResendOtpSuccessResponseDto,
+} from '../dto/responses/auth-message-response.dto.js';
 import { ApiErrorResponseDto } from '../../common/dto/responses/api-error-response.dto.js';
 
 @ApiTags('Admin Auth')
@@ -34,7 +38,7 @@ export class AdminAuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request OTP for password reset' })
-  @ApiOkResponse({ type: MessageSuccessResponseDto })
+  @ApiOkResponse({ type: ForgotPasswordSuccessResponseDto })
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.adminForgotPassword(dto.email);
   }
@@ -42,15 +46,7 @@ export class AdminAuthController {
   @Post('new-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set new password using OTP' })
-  @ApiOkResponse({
-    type: MessageSuccessResponseDto,
-    schema: {
-      example: {
-        success: true,
-        data: { message: 'Password updated successfully' },
-      },
-    },
-  })
+  @ApiOkResponse({ type: NewPasswordSuccessResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   newPassword(@Body() dto: NewPasswordDto) {
     return this.authService.adminNewPassword(dto);
@@ -59,15 +55,7 @@ export class AdminAuthController {
   @Post('resend-otp')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Resend OTP' })
-  @ApiOkResponse({
-    type: MessageSuccessResponseDto,
-    schema: {
-      example: {
-        success: true,
-        data: { message: 'OTP resent' },
-      },
-    },
-  })
+  @ApiOkResponse({ type: ResendOtpSuccessResponseDto })
   resendOtp(@Body() dto: ResendOtpDto) {
     return this.authService.adminResendOtp(dto.email);
   }

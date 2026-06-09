@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 class MessageDataDto {
-  @ApiProperty({ example: 'OTP sent' })
+  @ApiProperty({ example: 'Operation completed successfully' })
   message: string;
 }
 

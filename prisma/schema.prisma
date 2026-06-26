@@ -8,23 +8,52 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
 enum Role {
   ADMIN
   USER
 }
 
-model User {
-  id        String   @id @default(uuid())
-  username  String
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum TripStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
 
-  sessions UserSession[]
-  otps     UserAuthOtp[]
+enum NotificationType {
+  SOS
+  LOCATION_UPDATE
+  TRIP_STARTED
+  TRIP_ENDED
+  GROUP_INVITE
+  SYSTEM
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  username     String
+  email        String   @unique
+  password     String
+  secretKey    String   @default(uuid())
+  confirmed    Boolean  @default(false)
+  role         Role     @default(USER)
+  isActive     Boolean  @default(true)
+  sos          Boolean  @default(false)
+  lastLocation Json?
+  path         Json?
+  destination  Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions         UserSession[]
+  otps             UserAuthOtp[]
+  groupMemberships GroupMember[]
+  locationLogs     LocationLog[]
+  notifications    Notification[]
+  trips            Trip[]
 
   @@index([email])
 }
@@ -43,14 +72,100 @@ model UserAuthOtp {
 }
 
 model UserSession {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token             String
+  notificationToken String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([userId])
   @@index([token])
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  groupName String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members       GroupMember[]
+  trips         Trip[]
+  locationLogs  LocationLog[]
+  notifications Notification[]
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  userId    String
+  groupId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, groupId])
+  @@index([userId])
+  @@index([groupId])
+}
+
+model Trip {
+  id        String     @id @default(uuid())
+  userId    String
+  groupId   String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  status    TripStatus @default(ACTIVE)
+  startedAt DateTime?
+  endedAt   DateTime?
+  createdAt DateTime   @default(now())
+
+  locationLogs LocationLog[]
+
+  @@index([userId])
+  @@index([groupId])
+  @@index([status])
+}
+
+model LocationLog {
+  id           String   @id @default(uuid())
+  userId       String
+  groupId      String?
+  tripId       String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group        Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  trip         Trip?    @relation(fields: [tripId], references: [id], onDelete: SetNull)
+  latitude     Float
+  longitude    Float
+  locationTime DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([groupId])
+  @@index([tripId])
+  @@index([locationTime])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  groupId   String?
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group?           @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  alertType NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+}
+
+model AppConfig {
+  id              String   @id @default(uuid())
+  lastVersion     String
+  requiredVersion String
+  downloadURL     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

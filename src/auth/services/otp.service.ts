@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { randomInt } from 'crypto';
 
-const OTP_EXPIRY_MINUTES = 10;
-const BCRYPT_ROUNDS = 10;
 const DEV_OTP = '111111';
 
 @Injectable()
@@ -16,13 +15,13 @@ export class OtpService {
 
   generateOtp(): string {
     if (this.configService.get<string>('NODE_ENV') === 'production') {
-      return Math.floor(100000 + Math.random() * 900000).toString();
+      return randomInt(100000, 1000000).toString();
     }
     return DEV_OTP;
   }
 
   async hashValue(value: string): Promise<string> {
-    return bcrypt.hash(value, BCRYPT_ROUNDS);
+    return bcrypt.hash(value, 10);
   }
 
   async verifyValue(plain: string, hash: string): Promise<boolean> {
@@ -32,7 +31,12 @@ export class OtpService {
   async createOtp(userId: string): Promise<string> {
     const otp = this.generateOtp();
     const hashedOtp = await this.hashValue(otp);
-    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+    const expiresAt = new Date(
+      Date.now() +
+        this.configService.getOrThrow<number>('OTP_EXPIRY_MINUTES', 10) *
+          60 *
+          1000,
+    );
 
     await this.prisma.userAuthOtp.create({
       data: { userId, otp: hashedOtp, expiresAt },

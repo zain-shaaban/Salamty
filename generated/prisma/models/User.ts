@@ -263,12 +263,12 @@ export type UserOrderByWithRelationInput = {
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  secretKey?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   username?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
-  secretKey?: Prisma.StringFilter<"User"> | string
   confirmed?: Prisma.BoolFilter<"User"> | boolean
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   isActive?: Prisma.BoolFilter<"User"> | boolean
@@ -282,7 +282,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   locationLogs?: Prisma.LocationLogListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   trips?: Prisma.TripListRelationFilter
-}, "id" | "email">
+}, "id" | "email" | "secretKey">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -323,7 +323,7 @@ export type UserCreateInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -344,7 +344,7 @@ export type UserUncheckedCreateInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -407,7 +407,7 @@ export type UserCreateManyInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -610,7 +610,7 @@ export type UserCreateWithoutOtpsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -630,7 +630,7 @@ export type UserUncheckedCreateWithoutOtpsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -706,7 +706,7 @@ export type UserCreateWithoutSessionsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -726,7 +726,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -802,7 +802,7 @@ export type UserCreateWithoutCreatedGroupsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -822,7 +822,7 @@ export type UserUncheckedCreateWithoutCreatedGroupsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -898,7 +898,7 @@ export type UserCreateWithoutGroupMembershipsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -918,7 +918,7 @@ export type UserUncheckedCreateWithoutGroupMembershipsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -994,7 +994,7 @@ export type UserCreateWithoutTripsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -1014,7 +1014,7 @@ export type UserUncheckedCreateWithoutTripsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -1090,7 +1090,7 @@ export type UserCreateWithoutLocationLogsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -1110,7 +1110,7 @@ export type UserUncheckedCreateWithoutLocationLogsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -1186,7 +1186,7 @@ export type UserCreateWithoutNotificationsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean
@@ -1206,7 +1206,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   username: string
   email: string
   password: string
-  secretKey?: string
+  secretKey: string
   confirmed?: boolean
   role?: $Enums.Role
   isActive?: boolean

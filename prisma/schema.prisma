@@ -37,7 +37,7 @@ model User {
   username     String
   email        String   @unique
   password     String
-  secretKey    String   @default(uuid())
+  secretKey    String   @unique
   confirmed    Boolean  @default(false)
   role         Role     @default(USER)
   isActive     Boolean  @default(true)

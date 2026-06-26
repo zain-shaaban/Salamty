@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { hashSecretKey } from '../auth/utils/secret-key.util.js';
 import { CreateGroupDto } from './dto/requests/create-group.dto.js';
 import { AddUserToGroupDto } from './dto/requests/add-user-to-group.dto.js';
 import { LeaveGroupDto } from './dto/requests/leave-group.dto.js';
@@ -44,7 +45,7 @@ export class GroupService {
     }
 
     const user = await this.prisma.user.findFirst({
-      where: { secretKey },
+      where: { secretKey: hashSecretKey(secretKey) },
       select: { id: true, username: true, confirmed: true },
     });
 

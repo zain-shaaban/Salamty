@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { PrismaClient } from '../generated/prisma/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
+import { createSecretKey } from '../src/auth/utils/secret-key.util.js';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error('DATABASE_URL is not set');
@@ -20,12 +21,14 @@ async function seedAdmin() {
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);
+  const { hash } = await createSecretKey();
 
   await prisma.user.create({
     data: {
       username: 'admin',
       email,
       password: hashedPassword,
+      secretKey: hash,
       role: 'ADMIN',
       isActive: true,
       confirmed: true,

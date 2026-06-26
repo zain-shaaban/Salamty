@@ -22,7 +22,7 @@ export function otpEmailTemplate(username: string, otp: string): string {
   <div class="wrapper">
     <div class="header"><h1>سلامتي</h1></div>
     <div class="body">
-      <p>مرحباً <strong>${username}</strong>،</p>
+      <p>عزيزي <strong>${username}</strong>،</p>
       <p>استخدم رمز التحقق أدناه لإكمال طلبك. ينتهي صلاحية هذا الرمز خلال <strong>10 دقائق</strong>.</p>
       <div class="otp-box">
         <span class="otp-code">${otp}</span>
@@ -33,4 +33,16 @@ export function otpEmailTemplate(username: string, otp: string): string {
   </div>
 </body>
 </html>`;
+}
+
+export function otpEmailText(username: string, otp: string): string {
+  return `عزيزي ${username}،
+
+استخدم رمز التحقق التالي لإكمال طلبك (صالح لمدة 10 دقائق):
+
+${otp}
+
+إذا لم تطلب هذا الرمز، يمكنك تجاهل هذا البريد.
+
+— سلامتي`;
 }

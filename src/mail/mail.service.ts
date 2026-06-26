@@ -14,6 +14,13 @@ export interface WelcomeMailJob {
   username: string;
 }
 
+export interface BroadcastMailJob {
+  to: string;
+  username: string;
+  title: string;
+  body: string;
+}
+
 const JOB_OPTIONS = {
   attempts: 3,
   backoff: { type: 'exponential', delay: 3000 },
@@ -31,5 +38,15 @@ export class MailService {
 
   async queueWelcomeEmail(data: WelcomeMailJob): Promise<void> {
     await this.mailQueue.add('send-welcome', data, JOB_OPTIONS);
+  }
+
+  async queueBroadcastEmail(
+    data: BroadcastMailJob,
+    delayMs = 0,
+  ): Promise<void> {
+    await this.mailQueue.add('send-broadcast', data, {
+      ...JOB_OPTIONS,
+      delay: delayMs,
+    });
   }
 }

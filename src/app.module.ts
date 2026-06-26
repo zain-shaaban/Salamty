@@ -10,6 +10,7 @@ import { QueuesModule } from './queues/queues.module.js';
 import { MailModule } from './mail/mail.module.js';
 import { FcmModule } from './fcm/fcm.module.js';
 import { GroupModule } from './group/group.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { RolesGuard } from './common/guards/roles.guard.js';
 
@@ -36,6 +37,7 @@ import { RolesGuard } from './common/guards/roles.guard.js';
     AuthModule,
     SettingsModule,
     GroupModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

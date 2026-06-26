@@ -27,7 +27,7 @@ export function otpEmailTemplate(username: string, otp: string): string {
       <div class="otp-box">
         <span class="otp-code">${otp}</span>
       </div>
-      <p>إذا لم تطلب هذا الرمز، يمكنك تجاهل هذا البريد أو التواصل مع الدعم عند وجود أي استفسار.</p>
+      <p>إذا لم تطلب هذا الرمز، يمكنك تجاهل هذا البريد.</p>
     </div>
     <div class="footer"><p>&copy; ${new Date().getFullYear()} سلامتي. جميع الحقوق محفوظة.</p></div>
   </div>

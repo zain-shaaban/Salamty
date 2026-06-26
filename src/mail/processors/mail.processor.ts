@@ -44,7 +44,7 @@ export class MailProcessor extends WorkerHost {
     await this.transporter.sendMail({
       from: this.fromAddress,
       to: data.to,
-      subject: 'رمز التحقق - سلامتي',
+      subject: 'Salamty - Verification Code',
       html: otpEmailTemplate(data.username, data.otp),
     });
     this.logger.log(`OTP email sent to ${data.to}`);
@@ -54,7 +54,7 @@ export class MailProcessor extends WorkerHost {
     await this.transporter.sendMail({
       from: this.fromAddress,
       to: data.to,
-      subject: 'مرحباً بك في سلامتي!',
+      subject: 'Welcome to Salamty!',
       html: welcomeEmailTemplate(data.username),
     });
     this.logger.log(`Welcome email sent to ${data.to}`);

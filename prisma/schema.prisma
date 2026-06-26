@@ -42,15 +42,13 @@ model User {
   role         Role     @default(USER)
   isActive     Boolean  @default(true)
   sos          Boolean  @default(false)
-  lastLocation Json?
-  path         Json?
-  destination  Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   sessions         UserSession[]
   otps             UserAuthOtp[]
   groupMemberships GroupMember[]
+  createdGroups    Group[]       @relation("CreatedGroups")
   locationLogs     LocationLog[]
   notifications    Notification[]
   trips            Trip[]
@@ -86,24 +84,31 @@ model UserSession {
 }
 
 model Group {
-  id        String   @id @default(uuid())
-  groupName String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  groupName   String
+  createdById String
+  createdBy   User     @relation("CreatedGroups", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  members       GroupMember[]
+  groupMembers  GroupMember[]
   trips         Trip[]
   locationLogs  LocationLog[]
   notifications Notification[]
+
+  @@index([createdById])
 }
 
 model GroupMember {
-  id        String   @id @default(uuid())
-  userId    String
-  groupId   String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  userId       String
+  groupId      String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group        Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  lastLocation Json?
+  path         Json?
+  destination  Json?
+  joinedAt     DateTime @default(now())
 
   @@unique([userId, groupId])
   @@index([userId])

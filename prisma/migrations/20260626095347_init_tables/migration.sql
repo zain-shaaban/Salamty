@@ -56,6 +56,7 @@ CREATE TABLE "UserSession" (
 CREATE TABLE "Group" (
     "id" TEXT NOT NULL,
     "groupName" TEXT NOT NULL,
+    "createdById" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -67,7 +68,7 @@ CREATE TABLE "GroupMember" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "groupId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "GroupMember_pkey" PRIMARY KEY ("id")
 );
@@ -142,6 +143,9 @@ CREATE INDEX "UserSession_userId_idx" ON "UserSession"("userId");
 CREATE INDEX "UserSession_token_idx" ON "UserSession"("token");
 
 -- CreateIndex
+CREATE INDEX "Group_createdById_idx" ON "Group"("createdById");
+
+-- CreateIndex
 CREATE INDEX "GroupMember_userId_idx" ON "GroupMember"("userId");
 
 -- CreateIndex
@@ -182,6 +186,9 @@ ALTER TABLE "UserAuthOtp" ADD CONSTRAINT "UserAuthOtp_userId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "UserSession" ADD CONSTRAINT "UserSession_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Group" ADD CONSTRAINT "Group_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "GroupMember" ADD CONSTRAINT "GroupMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

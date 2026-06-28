@@ -16,6 +16,7 @@ import type { NewPasswordDto } from '../dto/requests/new-password.dto.js';
 import type { UserRegisterDto } from '../dto/requests/user-register.dto.js';
 import type { UserLoginDto } from '../dto/requests/user-login.dto.js';
 import type { VerifyEmailDto } from '../dto/requests/verify-email.dto.js';
+import { createSecretKey } from '../utils/secret-key.util.js';
 
 const BCRYPT_ROUNDS = 12;
 
@@ -141,12 +142,14 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const { hash } = createSecretKey();
 
     const user = await this.prisma.user.create({
       data: {
         username: dto.username,
         email: dto.email,
         password: hashedPassword,
+        secretKey: hash,
         role: Role.USER,
         confirmed: false,
       },
@@ -235,7 +238,28 @@ export class AuthService {
     const { password: _p, secretKey: _s, ...safeUser } = user;
     void _p;
     void _s;
+
     return { authToken, user: safeUser };
+  }
+
+  async regenerateSecretKey(userId: string): Promise<{ secretKey: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true },
+    });
+
+    if (!user || user.role !== Role.USER) {
+      throw new BadRequestException('Invalid request');
+    }
+
+    const { plain, hash } = createSecretKey();
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { secretKey: hash },
+    });
+
+    return { secretKey: plain };
   }
 
   async userForgotPassword(email: string): Promise<{ message: string }> {

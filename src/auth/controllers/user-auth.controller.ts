@@ -18,6 +18,7 @@ import { ForgotPasswordDto } from '../dto/requests/forgot-password.dto.js';
 import { NewPasswordDto } from '../dto/requests/new-password.dto.js';
 import { ResendOtpDto } from '../dto/requests/resend-otp.dto.js';
 import { UserLoginSuccessResponseDto } from '../dto/responses/user-login-response.dto.js';
+import { RegenerateSecretKeySuccessResponseDto } from '../dto/responses/regenerate-secret-key-response.dto.js';
 import {
   ForgotPasswordSuccessResponseDto,
   LogoutSuccessResponseDto,
@@ -104,5 +105,20 @@ export class UserAuthController {
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   logout(@CurrentUser() user: AuthenticatedUser) {
     return this.authService.userLogout(user.id);
+  }
+
+  @Post('regenerate-secret-key')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Regenerate secret key for the current user',
+    description:
+      'Invalidates the previous secret key and returns a new plain secret key.',
+  })
+  @ApiOkResponse({ type: RegenerateSecretKeySuccessResponseDto })
+  @ApiBadRequestResponse({ type: ApiErrorResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  regenerateSecretKey(@CurrentUser() user: AuthenticatedUser) {
+    return this.authService.regenerateSecretKey(user.id);
   }
 }

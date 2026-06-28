@@ -4,8 +4,21 @@ import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
 import * as nodemailer from 'nodemailer';
 import { MAIL_QUEUE } from '../../queues/queue-names.const.js';
-import { otpEmailTemplate, welcomeEmailTemplate } from '../templates';
-import type { OtpMailJob, WelcomeMailJob } from '../mail.service.js';
+import {
+  otpEmailTemplate,
+  otpEmailText,
+  welcomeEmailTemplate,
+  welcomeEmailText,
+  broadcastEmailTemplate,
+  broadcastEmailText,
+} from '../templates';
+import type {
+  OtpMailJob,
+  WelcomeMailJob,
+  BroadcastMailJob,
+} from '../mail.service.js';
+
+const BROADCAST_SUBJECT = 'Salamty - App Notification';
 
 @Processor(MAIL_QUEUE)
 export class MailProcessor extends WorkerHost {
@@ -35,6 +48,9 @@ export class MailProcessor extends WorkerHost {
       case 'send-welcome':
         await this.sendWelcome(job.data as WelcomeMailJob);
         break;
+      case 'send-broadcast':
+        await this.sendBroadcast(job.data as BroadcastMailJob);
+        break;
       default:
         this.logger.warn(`Unknown mail job name: ${job.name}`);
     }
@@ -44,7 +60,8 @@ export class MailProcessor extends WorkerHost {
     await this.transporter.sendMail({
       from: this.fromAddress,
       to: data.to,
-      subject: 'رمز التحقق - سلامتي',
+      subject: 'Salamty - Verification Code',
+      text: otpEmailText(data.username, data.otp),
       html: otpEmailTemplate(data.username, data.otp),
     });
     this.logger.log(`OTP email sent to ${data.to}`);
@@ -54,9 +71,21 @@ export class MailProcessor extends WorkerHost {
     await this.transporter.sendMail({
       from: this.fromAddress,
       to: data.to,
-      subject: 'مرحباً بك في سلامتي!',
+      subject: 'Salamty - Account Verified',
+      text: welcomeEmailText(data.username),
       html: welcomeEmailTemplate(data.username),
     });
     this.logger.log(`Welcome email sent to ${data.to}`);
+  }
+
+  private async sendBroadcast(data: BroadcastMailJob): Promise<void> {
+    await this.transporter.sendMail({
+      from: this.fromAddress,
+      to: data.to,
+      subject: BROADCAST_SUBJECT,
+      text: broadcastEmailText(data.username, data.title, data.body),
+      html: broadcastEmailTemplate(data.username, data.title, data.body),
+    });
+    this.logger.log(`Broadcast email sent to ${data.to}`);
   }
 }

@@ -6,6 +6,7 @@ import {
   ApiBadRequestResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { AuthService } from '../services/auth.service.js';
 import { AdminLoginDto } from '../dto/requests/admin-login.dto.js';
@@ -22,6 +23,7 @@ import { ApiErrorResponseDto } from '../../common/dto/responses/api-error-respon
 
 @ApiTags('Admin Auth')
 @Public()
+@Throttle({ default: { limit: 10, ttl: 60_000 } })
 @Controller('admin/auth')
 export class AdminAuthController {
   constructor(private readonly authService: AuthService) {}

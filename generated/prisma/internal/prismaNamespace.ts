@@ -1188,6 +1188,9 @@ export const TripScalarFieldEnum = {
   userId: 'userId',
   groupId: 'groupId',
   status: 'status',
+  destinationLat: 'destinationLat',
+  destinationLng: 'destinationLng',
+  estimatedArrival: 'estimatedArrival',
   startedAt: 'startedAt',
   endedAt: 'endedAt',
   createdAt: 'createdAt'
@@ -1215,6 +1218,8 @@ export const NotificationScalarFieldEnum = {
   userId: 'userId',
   groupId: 'groupId',
   alertType: 'alertType',
+  title: 'title',
+  body: 'body',
   isRead: 'isRead',
   createdAt: 'createdAt'
 } as const

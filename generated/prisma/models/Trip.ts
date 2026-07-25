@@ -20,8 +20,20 @@ export type TripModel = runtime.Types.Result.DefaultSelection<Prisma.$TripPayloa
 
 export type AggregateTrip = {
   _count: TripCountAggregateOutputType | null
+  _avg: TripAvgAggregateOutputType | null
+  _sum: TripSumAggregateOutputType | null
   _min: TripMinAggregateOutputType | null
   _max: TripMaxAggregateOutputType | null
+}
+
+export type TripAvgAggregateOutputType = {
+  destinationLat: number | null
+  destinationLng: number | null
+}
+
+export type TripSumAggregateOutputType = {
+  destinationLat: number | null
+  destinationLng: number | null
 }
 
 export type TripMinAggregateOutputType = {
@@ -29,6 +41,9 @@ export type TripMinAggregateOutputType = {
   userId: string | null
   groupId: string | null
   status: $Enums.TripStatus | null
+  destinationLat: number | null
+  destinationLng: number | null
+  estimatedArrival: Date | null
   startedAt: Date | null
   endedAt: Date | null
   createdAt: Date | null
@@ -39,6 +54,9 @@ export type TripMaxAggregateOutputType = {
   userId: string | null
   groupId: string | null
   status: $Enums.TripStatus | null
+  destinationLat: number | null
+  destinationLng: number | null
+  estimatedArrival: Date | null
   startedAt: Date | null
   endedAt: Date | null
   createdAt: Date | null
@@ -49,6 +67,9 @@ export type TripCountAggregateOutputType = {
   userId: number
   groupId: number
   status: number
+  destinationLat: number
+  destinationLng: number
+  estimatedArrival: number
   startedAt: number
   endedAt: number
   createdAt: number
@@ -56,11 +77,24 @@ export type TripCountAggregateOutputType = {
 }
 
 
+export type TripAvgAggregateInputType = {
+  destinationLat?: true
+  destinationLng?: true
+}
+
+export type TripSumAggregateInputType = {
+  destinationLat?: true
+  destinationLng?: true
+}
+
 export type TripMinAggregateInputType = {
   id?: true
   userId?: true
   groupId?: true
   status?: true
+  destinationLat?: true
+  destinationLng?: true
+  estimatedArrival?: true
   startedAt?: true
   endedAt?: true
   createdAt?: true
@@ -71,6 +105,9 @@ export type TripMaxAggregateInputType = {
   userId?: true
   groupId?: true
   status?: true
+  destinationLat?: true
+  destinationLng?: true
+  estimatedArrival?: true
   startedAt?: true
   endedAt?: true
   createdAt?: true
@@ -81,6 +118,9 @@ export type TripCountAggregateInputType = {
   userId?: true
   groupId?: true
   status?: true
+  destinationLat?: true
+  destinationLng?: true
+  estimatedArrival?: true
   startedAt?: true
   endedAt?: true
   createdAt?: true
@@ -125,6 +165,18 @@ export type TripAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TripAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TripSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TripMinAggregateInputType
@@ -155,6 +207,8 @@ export type TripGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: TripCountAggregateInputType | true
+  _avg?: TripAvgAggregateInputType
+  _sum?: TripSumAggregateInputType
   _min?: TripMinAggregateInputType
   _max?: TripMaxAggregateInputType
 }
@@ -164,10 +218,15 @@ export type TripGroupByOutputType = {
   userId: string
   groupId: string
   status: $Enums.TripStatus
+  destinationLat: number | null
+  destinationLng: number | null
+  estimatedArrival: Date | null
   startedAt: Date | null
   endedAt: Date | null
   createdAt: Date
   _count: TripCountAggregateOutputType | null
+  _avg: TripAvgAggregateOutputType | null
+  _sum: TripSumAggregateOutputType | null
   _min: TripMinAggregateOutputType | null
   _max: TripMaxAggregateOutputType | null
 }
@@ -195,6 +254,9 @@ export type TripWhereInput = {
   userId?: Prisma.StringFilter<"Trip"> | string
   groupId?: Prisma.StringFilter<"Trip"> | string
   status?: Prisma.EnumTripStatusFilter<"Trip"> | $Enums.TripStatus
+  destinationLat?: Prisma.FloatNullableFilter<"Trip"> | number | null
+  destinationLng?: Prisma.FloatNullableFilter<"Trip"> | number | null
+  estimatedArrival?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Trip"> | Date | string
@@ -208,6 +270,9 @@ export type TripOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   groupId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  destinationLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  destinationLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  estimatedArrival?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -224,6 +289,9 @@ export type TripWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"Trip"> | string
   groupId?: Prisma.StringFilter<"Trip"> | string
   status?: Prisma.EnumTripStatusFilter<"Trip"> | $Enums.TripStatus
+  destinationLat?: Prisma.FloatNullableFilter<"Trip"> | number | null
+  destinationLng?: Prisma.FloatNullableFilter<"Trip"> | number | null
+  estimatedArrival?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Trip"> | Date | string
@@ -237,12 +305,17 @@ export type TripOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   groupId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  destinationLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  destinationLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  estimatedArrival?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.TripCountOrderByAggregateInput
+  _avg?: Prisma.TripAvgOrderByAggregateInput
   _max?: Prisma.TripMaxOrderByAggregateInput
   _min?: Prisma.TripMinOrderByAggregateInput
+  _sum?: Prisma.TripSumOrderByAggregateInput
 }
 
 export type TripScalarWhereWithAggregatesInput = {
@@ -253,6 +326,9 @@ export type TripScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"Trip"> | string
   groupId?: Prisma.StringWithAggregatesFilter<"Trip"> | string
   status?: Prisma.EnumTripStatusWithAggregatesFilter<"Trip"> | $Enums.TripStatus
+  destinationLat?: Prisma.FloatNullableWithAggregatesFilter<"Trip"> | number | null
+  destinationLng?: Prisma.FloatNullableWithAggregatesFilter<"Trip"> | number | null
+  estimatedArrival?: Prisma.DateTimeNullableWithAggregatesFilter<"Trip"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Trip"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Trip"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Trip"> | Date | string
@@ -261,6 +337,9 @@ export type TripScalarWhereWithAggregatesInput = {
 export type TripCreateInput = {
   id?: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -274,6 +353,9 @@ export type TripUncheckedCreateInput = {
   userId: string
   groupId: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -283,6 +365,9 @@ export type TripUncheckedCreateInput = {
 export type TripUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -296,6 +381,9 @@ export type TripUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   groupId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -307,6 +395,9 @@ export type TripCreateManyInput = {
   userId: string
   groupId: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -315,6 +406,9 @@ export type TripCreateManyInput = {
 export type TripUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -325,6 +419,9 @@ export type TripUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   groupId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -345,9 +442,17 @@ export type TripCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   groupId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  destinationLat?: Prisma.SortOrder
+  destinationLng?: Prisma.SortOrder
+  estimatedArrival?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type TripAvgOrderByAggregateInput = {
+  destinationLat?: Prisma.SortOrder
+  destinationLng?: Prisma.SortOrder
 }
 
 export type TripMaxOrderByAggregateInput = {
@@ -355,6 +460,9 @@ export type TripMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   groupId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  destinationLat?: Prisma.SortOrder
+  destinationLng?: Prisma.SortOrder
+  estimatedArrival?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -365,9 +473,17 @@ export type TripMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   groupId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  destinationLat?: Prisma.SortOrder
+  destinationLng?: Prisma.SortOrder
+  estimatedArrival?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type TripSumOrderByAggregateInput = {
+  destinationLat?: Prisma.SortOrder
+  destinationLng?: Prisma.SortOrder
 }
 
 export type TripNullableScalarRelationFilter = {
@@ -463,6 +579,14 @@ export type EnumTripStatusFieldUpdateOperationsInput = {
   set?: $Enums.TripStatus
 }
 
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
@@ -486,6 +610,9 @@ export type TripUpdateOneWithoutLocationLogsNestedInput = {
 export type TripCreateWithoutUserInput = {
   id?: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -497,6 +624,9 @@ export type TripUncheckedCreateWithoutUserInput = {
   id?: string
   groupId: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -537,6 +667,9 @@ export type TripScalarWhereInput = {
   userId?: Prisma.StringFilter<"Trip"> | string
   groupId?: Prisma.StringFilter<"Trip"> | string
   status?: Prisma.EnumTripStatusFilter<"Trip"> | $Enums.TripStatus
+  destinationLat?: Prisma.FloatNullableFilter<"Trip"> | number | null
+  destinationLng?: Prisma.FloatNullableFilter<"Trip"> | number | null
+  estimatedArrival?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Trip"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Trip"> | Date | string
@@ -545,6 +678,9 @@ export type TripScalarWhereInput = {
 export type TripCreateWithoutGroupInput = {
   id?: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -556,6 +692,9 @@ export type TripUncheckedCreateWithoutGroupInput = {
   id?: string
   userId: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -591,6 +730,9 @@ export type TripUpdateManyWithWhereWithoutGroupInput = {
 export type TripCreateWithoutLocationLogsInput = {
   id?: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -603,6 +745,9 @@ export type TripUncheckedCreateWithoutLocationLogsInput = {
   userId: string
   groupId: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -627,6 +772,9 @@ export type TripUpdateToOneWithWhereWithoutLocationLogsInput = {
 export type TripUpdateWithoutLocationLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -639,6 +787,9 @@ export type TripUncheckedUpdateWithoutLocationLogsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   groupId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -648,6 +799,9 @@ export type TripCreateManyUserInput = {
   id?: string
   groupId: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -656,6 +810,9 @@ export type TripCreateManyUserInput = {
 export type TripUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -667,6 +824,9 @@ export type TripUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   groupId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -677,6 +837,9 @@ export type TripUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   groupId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -686,6 +849,9 @@ export type TripCreateManyGroupInput = {
   id?: string
   userId: string
   status?: $Enums.TripStatus
+  destinationLat?: number | null
+  destinationLng?: number | null
+  estimatedArrival?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
   createdAt?: Date | string
@@ -694,6 +860,9 @@ export type TripCreateManyGroupInput = {
 export type TripUpdateWithoutGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -705,6 +874,9 @@ export type TripUncheckedUpdateWithoutGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -715,6 +887,9 @@ export type TripUncheckedUpdateManyWithoutGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
+  destinationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  destinationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  estimatedArrival?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -756,6 +931,9 @@ export type TripSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   userId?: boolean
   groupId?: boolean
   status?: boolean
+  destinationLat?: boolean
+  destinationLng?: boolean
+  estimatedArrival?: boolean
   startedAt?: boolean
   endedAt?: boolean
   createdAt?: boolean
@@ -770,6 +948,9 @@ export type TripSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   userId?: boolean
   groupId?: boolean
   status?: boolean
+  destinationLat?: boolean
+  destinationLng?: boolean
+  estimatedArrival?: boolean
   startedAt?: boolean
   endedAt?: boolean
   createdAt?: boolean
@@ -782,6 +963,9 @@ export type TripSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   userId?: boolean
   groupId?: boolean
   status?: boolean
+  destinationLat?: boolean
+  destinationLng?: boolean
+  estimatedArrival?: boolean
   startedAt?: boolean
   endedAt?: boolean
   createdAt?: boolean
@@ -794,12 +978,15 @@ export type TripSelectScalar = {
   userId?: boolean
   groupId?: boolean
   status?: boolean
+  destinationLat?: boolean
+  destinationLng?: boolean
+  estimatedArrival?: boolean
   startedAt?: boolean
   endedAt?: boolean
   createdAt?: boolean
 }
 
-export type TripOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "groupId" | "status" | "startedAt" | "endedAt" | "createdAt", ExtArgs["result"]["trip"]>
+export type TripOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "groupId" | "status" | "destinationLat" | "destinationLng" | "estimatedArrival" | "startedAt" | "endedAt" | "createdAt", ExtArgs["result"]["trip"]>
 export type TripInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   group?: boolean | Prisma.GroupDefaultArgs<ExtArgs>
@@ -827,6 +1014,9 @@ export type $TripPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     userId: string
     groupId: string
     status: $Enums.TripStatus
+    destinationLat: number | null
+    destinationLng: number | null
+    estimatedArrival: Date | null
     startedAt: Date | null
     endedAt: Date | null
     createdAt: Date
@@ -1260,6 +1450,9 @@ export interface TripFieldRefs {
   readonly userId: Prisma.FieldRef<"Trip", 'String'>
   readonly groupId: Prisma.FieldRef<"Trip", 'String'>
   readonly status: Prisma.FieldRef<"Trip", 'TripStatus'>
+  readonly destinationLat: Prisma.FieldRef<"Trip", 'Float'>
+  readonly destinationLng: Prisma.FieldRef<"Trip", 'Float'>
+  readonly estimatedArrival: Prisma.FieldRef<"Trip", 'DateTime'>
   readonly startedAt: Prisma.FieldRef<"Trip", 'DateTime'>
   readonly endedAt: Prisma.FieldRef<"Trip", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Trip", 'DateTime'>

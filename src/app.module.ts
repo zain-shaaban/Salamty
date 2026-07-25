@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -11,8 +13,10 @@ import { MailModule } from './mail/mail.module.js';
 import { FcmModule } from './fcm/fcm.module.js';
 import { GroupModule } from './group/group.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
+import { RealtimeModule } from './realtime/realtime.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { RolesGuard } from './common/guards/roles.guard.js';
+import { WsSafeThrottlerGuard } from './common/guards/ws-safe-throttler.guard.js';
 
 @Module({
   imports: [
@@ -30,6 +34,10 @@ import { RolesGuard } from './common/guards/roles.guard.js';
         redact: ['req.headers.authorization'],
       },
     }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 100 }],
+    }),
+    ScheduleModule.forRoot(),
     QueuesModule,
     PrismaModule,
     MailModule,
@@ -38,9 +46,14 @@ import { RolesGuard } from './common/guards/roles.guard.js';
     SettingsModule,
     GroupModule,
     NotificationsModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: WsSafeThrottlerGuard,
+    },
     // Global JWT guard — all routes protected by default; use @Public() to opt-out
     {
       provide: APP_GUARD,

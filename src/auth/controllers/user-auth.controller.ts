@@ -7,8 +7,10 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
+  ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { AuthService } from '../services/auth.service.js';
 import { UserRegisterDto } from '../dto/requests/user-register.dto.js';
@@ -38,9 +40,11 @@ export class UserAuthController {
 
   @Public()
   @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({ summary: 'Register a new user account' })
   @ApiCreatedResponse({ type: RegisterSuccessResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiTooManyRequestsResponse({ type: ApiErrorResponseDto })
   register(@Body() dto: UserRegisterDto) {
     return this.authService.userRegister(dto);
   }
@@ -48,6 +52,7 @@ export class UserAuthController {
   @Public()
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Verify email using OTP',
     description:
@@ -62,9 +67,11 @@ export class UserAuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'User login' })
   @ApiOkResponse({ type: UserLoginSuccessResponseDto })
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiTooManyRequestsResponse({ type: ApiErrorResponseDto })
   login(@Body() dto: UserLoginDto) {
     return this.authService.userLogin(dto);
   }
@@ -72,8 +79,10 @@ export class UserAuthController {
   @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 3, ttl: 60_000 } })
   @ApiOperation({ summary: 'Request OTP for password reset' })
   @ApiOkResponse({ type: ForgotPasswordSuccessResponseDto })
+  @ApiTooManyRequestsResponse({ type: ApiErrorResponseDto })
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.userForgotPassword(dto.email);
   }
@@ -81,9 +90,11 @@ export class UserAuthController {
   @Public()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Reset password using OTP' })
   @ApiOkResponse({ type: ResetPasswordSuccessResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
+  @ApiTooManyRequestsResponse({ type: ApiErrorResponseDto })
   resetPassword(@Body() dto: NewPasswordDto) {
     return this.authService.userResetPassword(dto);
   }
@@ -91,8 +102,10 @@ export class UserAuthController {
   @Public()
   @Post('resend-otp')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 3, ttl: 60_000 } })
   @ApiOperation({ summary: 'Resend OTP (verification or password reset)' })
   @ApiOkResponse({ type: ResendOtpSuccessResponseDto })
+  @ApiTooManyRequestsResponse({ type: ApiErrorResponseDto })
   resendOtp(@Body() dto: ResendOtpDto) {
     return this.authService.userResendOtp(dto.email);
   }

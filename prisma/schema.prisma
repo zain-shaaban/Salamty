@@ -116,21 +116,25 @@ model GroupMember {
 }
 
 model Trip {
-  id        String     @id @default(uuid())
-  userId    String
-  groupId   String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  status    TripStatus @default(ACTIVE)
-  startedAt DateTime?
-  endedAt   DateTime?
-  createdAt DateTime   @default(now())
+  id               String     @id @default(uuid())
+  userId           String
+  groupId          String
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group            Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  status           TripStatus @default(ACTIVE)
+  destinationLat   Float?
+  destinationLng   Float?
+  estimatedArrival DateTime?
+  startedAt        DateTime?
+  endedAt          DateTime?
+  createdAt        DateTime   @default(now())
 
   locationLogs LocationLog[]
 
   @@index([userId])
   @@index([groupId])
   @@index([status])
+  @@index([userId, status])
 }
 
 model LocationLog {
@@ -159,11 +163,14 @@ model Notification {
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   group     Group?           @relation(fields: [groupId], references: [id], onDelete: SetNull)
   alertType NotificationType
+  title     String
+  body      String
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
 
   @@index([userId])
   @@index([userId, isRead])
+  @@index([userId, createdAt])
 }
 
 model AppConfig {

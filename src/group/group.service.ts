@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { GroupEventsGateway } from '../realtime/gateways/group-events.gateway.js';
 import { hashSecretKey } from '../auth/utils/secret-key.util.js';
 import { CreateGroupDto } from './dto/requests/create-group.dto.js';
 import { AddUserToGroupDto } from './dto/requests/add-user-to-group.dto.js';
@@ -11,7 +12,10 @@ import { LeaveGroupDto } from './dto/requests/leave-group.dto.js';
 
 @Injectable()
 export class GroupService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly groupEvents: GroupEventsGateway,
+  ) {}
 
   async createNewGroup({ groupName }: CreateGroupDto, userId: string) {
     const group = await this.prisma.group.create({
@@ -22,6 +26,8 @@ export class GroupService {
       },
       select: { id: true },
     });
+
+    this.groupEvents.addUserToGroup(userId, group.id);
 
     return { groupId: group.id };
   }
@@ -63,6 +69,9 @@ export class GroupService {
       update: {},
     });
 
+    this.groupEvents.addUserToGroup(user.id, groupId);
+    this.groupEvents.notifyGroupChanged(groupId);
+
     return { id: user.id, username: user.username };
   }
 
@@ -75,12 +84,16 @@ export class GroupService {
       throw new NotFoundException('Group not found');
     }
 
+    this.groupEvents.removeUserFromGroup(userId, groupId);
+
     const remainingMembers = await this.prisma.groupMember.count({
       where: { groupId },
     });
 
     if (remainingMembers === 0) {
       await this.prisma.group.delete({ where: { id: groupId } });
+    } else {
+      this.groupEvents.notifyGroupChanged(groupId);
     }
 
     return null;

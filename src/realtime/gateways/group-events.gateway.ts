@@ -77,9 +77,14 @@ export class GroupEventsGateway
     this.namespace.to(groupRoom(groupId)).emit(GroupEvent.GROUP_CHANGED);
   }
 
-  /** Add a connected user's socket to a group room (on join). */
-  addUserToGroup(userId: string, groupId: string): void {
-    void this.socketOf(userId)?.join(groupRoom(groupId));
+  /**
+   * Add a connected user's socket to a group room (on join). Awaited by
+   * callers that immediately follow up with notifyGroupChanged() — join()
+   * isn't guaranteed synchronous, so emitting to the room before it resolves
+   * can miss the very socket that was just added.
+   */
+  async addUserToGroup(userId: string, groupId: string): Promise<void> {
+    await this.socketOf(userId)?.join(groupRoom(groupId));
   }
 
   /** Remove a connected user's socket from a group room (on leave). */

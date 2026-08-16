@@ -27,7 +27,7 @@ export class GroupService {
       select: { id: true },
     });
 
-    this.groupEvents.addUserToGroup(userId, group.id);
+    await this.groupEvents.addUserToGroup(userId, group.id);
 
     return { groupId: group.id };
   }
@@ -69,7 +69,7 @@ export class GroupService {
       update: {},
     });
 
-    this.groupEvents.addUserToGroup(user.id, groupId);
+    await this.groupEvents.addUserToGroup(user.id, groupId);
     this.groupEvents.notifyGroupChanged(groupId);
 
     return { id: user.id, username: user.username };

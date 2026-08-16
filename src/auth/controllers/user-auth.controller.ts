@@ -56,7 +56,7 @@ export class UserAuthController {
   @ApiOperation({
     summary: 'Verify email using OTP',
     description:
-      'Returns "Email verified successfully. You can now log in." on success, or "Email already verified" if the account was already confirmed.',
+      'On success, also logs the user in (returns authToken + user, same as /auth/login) since verification is the natural end of signup. Returns "Email already verified" with no authToken if the account was already confirmed.',
   })
   @ApiOkResponse({ type: VerifyEmailSuccessResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })

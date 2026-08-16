@@ -132,7 +132,9 @@ export class AuthService {
 
   // ─── User Auth ───────────────────────────────────────────────────────────────
 
-  async userRegister(dto: UserRegisterDto): Promise<{ message: string }> {
+  async userRegister(
+    dto: UserRegisterDto,
+  ): Promise<{ message: string; secretKey: string }> {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -142,7 +144,7 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const { hash } = createSecretKey();
+    const { plain, hash } = createSecretKey();
 
     const user = await this.prisma.user.create({
       data: {
@@ -165,10 +167,13 @@ export class AuthService {
     return {
       message:
         'Registration successful. Please check your email for the verification code.',
+      // Plain value is never stored — this is the only time it's ever
+      // retrievable, same one-shot pattern as regenerateSecretKey().
+      secretKey: plain,
     };
   }
 
-  async userVerifyEmail(dto: VerifyEmailDto): Promise<{ message: string }> {
+  async userVerifyEmail(dto: VerifyEmailDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -189,7 +194,7 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired OTP');
     }
 
-    await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: { confirmed: true },
     });
@@ -199,7 +204,21 @@ export class AuthService {
       username: user.username,
     });
 
-    return { message: 'Email verified successfully. You can now log in.' };
+    // Verification is the natural end of signup — log the user straight in
+    // rather than sending them back to a separate login screen.
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const authToken = this.jwtService.sign(payload);
+    await this.sessionService.createSession(user.id, authToken);
+
+    const { password: _p, secretKey: _s, ...safeUser } = updatedUser;
+    void _p;
+    void _s;
+
+    return {
+      message: 'Email verified successfully.',
+      authToken,
+      user: safeUser,
+    };
   }
 
   async userLogin(dto: UserLoginDto) {

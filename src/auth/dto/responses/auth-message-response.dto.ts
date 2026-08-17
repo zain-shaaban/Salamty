@@ -20,13 +20,6 @@ class RegisterMessageDataDto {
       'Registration successful. Please check your email for the verification code.',
   })
   message: string;
-
-  @ApiProperty({
-    description:
-      'One-time plain secret key — never retrievable again after this response.',
-    example: 'a3f5c8d2e1b409678901234567890abcdef0123456789abcdef0123456789ab',
-  })
-  secretKey: string;
 }
 
 export class RegisterSuccessResponseDto extends AuthMessageSuccessResponseDto {
@@ -72,6 +65,13 @@ class VerifyEmailMessageDataDto {
 
   @ApiPropertyOptional({ type: VerifyEmailUserProfileDto })
   user?: VerifyEmailUserProfileDto;
+
+  @ApiPropertyOptional({
+    description:
+      'One-time plain secret key — never retrievable again after this response. Absent only when the account was already verified previously.',
+    example: 'a3f5c8d2e1b409678901234567890abcdef0123456789abcdef0123456789ab',
+  })
+  secretKey?: string;
 }
 
 export class VerifyEmailSuccessResponseDto extends AuthMessageSuccessResponseDto {

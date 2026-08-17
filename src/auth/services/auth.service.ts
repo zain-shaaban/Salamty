@@ -134,7 +134,7 @@ export class AuthService {
 
   async userRegister(
     dto: UserRegisterDto,
-  ): Promise<{ message: string; secretKey: string }> {
+  ): Promise<{ message: string }> {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -144,7 +144,10 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const { plain, hash } = createSecretKey();
+    // Placeholder key for this not-yet-verified account — its plain value is
+    // never exposed. userVerifyEmail() issues the real one-shot secret key
+    // once the account is actually usable, superseding this hash.
+    const { hash } = createSecretKey();
 
     const user = await this.prisma.user.create({
       data: {
@@ -167,9 +170,6 @@ export class AuthService {
     return {
       message:
         'Registration successful. Please check your email for the verification code.',
-      // Plain value is never stored — this is the only time it's ever
-      // retrievable, same one-shot pattern as regenerateSecretKey().
-      secretKey: plain,
     };
   }
 
@@ -194,9 +194,15 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired OTP');
     }
 
+    // Issue the account's real one-shot secret key now that it's actually
+    // usable — this is the only time its plain value is ever retrievable,
+    // same pattern as regenerateSecretKey(). Supersedes the placeholder
+    // hash written at registration.
+    const { plain: secretKey, hash: secretKeyHash } = createSecretKey();
+
     const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
-      data: { confirmed: true },
+      data: { confirmed: true, secretKey: secretKeyHash },
     });
 
     await this.mailService.queueWelcomeEmail({
@@ -218,6 +224,7 @@ export class AuthService {
       message: 'Email verified successfully.',
       authToken,
       user: safeUser,
+      secretKey,
     };
   }
 

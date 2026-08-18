@@ -30,7 +30,6 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-
   async adminLogin(dto: AdminLoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -129,10 +128,7 @@ export class AuthService {
     return { message: 'If this email is registered, an OTP has been resent.' };
   }
 
-
-  async userRegister(
-    dto: UserRegisterDto,
-  ): Promise<{ message: string }> {
+  async userRegister(dto: UserRegisterDto): Promise<{ message: string }> {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });

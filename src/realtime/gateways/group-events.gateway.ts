@@ -78,10 +78,7 @@ export class GroupEventsGateway
   }
 
   /**
-   * Add a connected user's socket to a group room (on join). Awaited by
-   * callers that immediately follow up with notifyGroupChanged() — join()
-   * isn't guaranteed synchronous, so emitting to the room before it resolves
-   * can miss the very socket that was just added.
+   * Add a connected user's socket to a group room (on join).
    */
   async addUserToGroup(userId: string, groupId: string): Promise<void> {
     await this.socketOf(userId)?.join(groupRoom(groupId));

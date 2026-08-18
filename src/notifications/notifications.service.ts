@@ -8,7 +8,6 @@ import { BroadcastChannel } from './enums/broadcast-channel.enum.js';
 import type { BroadcastNotificationDto } from './dto/requests/broadcast-notification.dto.js';
 
 export interface GroupNotification {
-  /** Sender — excluded from the recipient list. */
   senderUserId: string;
   groupId: string;
   type: NotificationType;
@@ -32,12 +31,7 @@ export class NotificationsService {
     private readonly fcmService: FcmService,
   ) {}
 
-  // ─── Targeted notifications (persisted + FCM push) ─────────────────────────
 
-  /**
-   * Notify every member of a group except the sender. Persists a Notification
-   * row per recipient and queues an FCM push to their active devices.
-   */
   async notifyGroup({
     senderUserId,
     groupId,
@@ -54,7 +48,6 @@ export class NotificationsService {
     await this.dispatch(userIds, type, title, body, groupId);
   }
 
-  /** Notify a single user (persisted + FCM push to their active devices). */
   async notifyUser({
     userId,
     type,
@@ -107,7 +100,6 @@ export class NotificationsService {
     await this.fcmService.queuePushToMany(tokens, title, body, data);
   }
 
-  // ─── User inbox ────────────────────────────────────────────────────────────
 
   async listForUser(
     userId: string,
@@ -151,11 +143,6 @@ export class NotificationsService {
     return { updated: count };
   }
 
-  /**
-   * Update the FCM device token for the caller's most recent active session.
-   * Device tokens are refreshed by the client SDK, so this keeps push delivery
-   * working without forcing a re-login.
-   */
   async updateDeviceToken(
     userId: string,
     notificationToken: string,
@@ -178,7 +165,6 @@ export class NotificationsService {
     return null;
   }
 
-  // ─── Admin broadcast ───────────────────────────────────────────────────────
 
   async broadcastToAllUsers({
     channel,

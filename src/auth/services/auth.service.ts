@@ -30,7 +30,6 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  // ─── Admin Auth ─────────────────────────────────────────────────────────────
 
   async adminLogin(dto: AdminLoginDto) {
     const user = await this.prisma.user.findUnique({
@@ -130,7 +129,6 @@ export class AuthService {
     return { message: 'If this email is registered, an OTP has been resent.' };
   }
 
-  // ─── User Auth ───────────────────────────────────────────────────────────────
 
   async userRegister(
     dto: UserRegisterDto,
@@ -144,9 +142,6 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    // Placeholder key for this not-yet-verified account — its plain value is
-    // never exposed. userVerifyEmail() issues the real one-shot secret key
-    // once the account is actually usable, superseding this hash.
     const { hash } = createSecretKey();
 
     const user = await this.prisma.user.create({
@@ -194,10 +189,6 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired OTP');
     }
 
-    // Issue the account's real one-shot secret key now that it's actually
-    // usable — this is the only time its plain value is ever retrievable,
-    // same pattern as regenerateSecretKey(). Supersedes the placeholder
-    // hash written at registration.
     const { plain: secretKey, hash: secretKeyHash } = createSecretKey();
 
     const updatedUser = await this.prisma.user.update({
@@ -210,8 +201,6 @@ export class AuthService {
       username: user.username,
     });
 
-    // Verification is the natural end of signup — log the user straight in
-    // rather than sending them back to a separate login screen.
     const payload = { sub: user.id, email: user.email, role: user.role };
     const authToken = this.jwtService.sign(payload);
     await this.sessionService.createSession(user.id, authToken);

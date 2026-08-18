@@ -25,7 +25,6 @@ export class LocationController {
 
   @Post('location')
   @HttpCode(HttpStatus.OK)
-  // Fallback for clients that push location over HTTP instead of the socket.
   @Throttle({ default: { limit: 30, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Report a location update for a group (HTTP fallback)',

@@ -1,10 +1,5 @@
 import type { Socket } from 'socket.io';
 
-/**
- * Extract the JWT from a socket handshake. Supports, in order:
- *   socket.handshake.auth.token   (socket.io `auth` option — preferred)
- *   ?authToken=  /  ?token=       (query string)
- */
 export function getHandshakeToken(client: Socket): string | null {
   const authToken = (client.handshake.auth as { token?: unknown } | undefined)
     ?.token;

@@ -27,7 +27,6 @@ export function parseLocation(raw: unknown): LocationPayload {
   return { lat: value.lat, lng: value.lng, time: value.time };
 }
 
-/** Location may be absent on connect; returns null when nothing was sent. */
 export function parseOptionalLocation(raw: unknown): LocationPayload | null {
   if (raw === undefined || raw === null || raw === '') return null;
   const parsed = typeof raw === 'string' ? safeJson(raw) : raw;

@@ -54,12 +54,10 @@ import { WsSafeThrottlerGuard } from './common/guards/ws-safe-throttler.guard.js
       provide: APP_GUARD,
       useClass: WsSafeThrottlerGuard,
     },
-    // Global JWT guard — all routes protected by default; use @Public() to opt-out
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    // Global roles guard — use @Roles(Role.ADMIN) to restrict
     {
       provide: APP_GUARD,
       useClass: RolesGuard,

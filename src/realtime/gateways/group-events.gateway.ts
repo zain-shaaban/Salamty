@@ -17,10 +17,6 @@ interface JwtPayload {
 
 const groupRoom = (groupId: string) => `group:${groupId}`;
 
-/**
- * Push-only gateway on the `groups` namespace. Each client joins a room per
- * group it belongs to, so a membership change is one `group:changed` room emit.
- */
 @WebSocketGateway({
   namespace: 'groups',
   cors: { origin: resolveCorsOrigins(), credentials: true },
@@ -31,7 +27,6 @@ export class GroupEventsGateway
   @WebSocketServer()
   private namespace!: Namespace;
 
-  /** userId → its connected socket id (one device per user). */
   private readonly socketByUser = new Map<string, string>();
 
   constructor(
@@ -66,25 +61,19 @@ export class GroupEventsGateway
 
   handleDisconnect(client: Socket): void {
     const userId = (client.data as { userId?: string } | undefined)?.userId;
-    // Guard against a reconnect race: only clear if this is still the live id.
     if (userId && this.socketByUser.get(userId) === client.id) {
       this.socketByUser.delete(userId);
     }
   }
 
-  /** One room emit — every connected member of the group is notified. */
   notifyGroupChanged(groupId: string): void {
     this.namespace.to(groupRoom(groupId)).emit(GroupEvent.GROUP_CHANGED);
   }
 
-  /**
-   * Add a connected user's socket to a group room (on join).
-   */
   async addUserToGroup(userId: string, groupId: string): Promise<void> {
     await this.socketOf(userId)?.join(groupRoom(groupId));
   }
 
-  /** Remove a connected user's socket from a group room (on leave). */
   removeUserFromGroup(userId: string, groupId: string): void {
     void this.socketOf(userId)?.leave(groupRoom(groupId));
   }

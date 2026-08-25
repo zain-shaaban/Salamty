@@ -44,11 +44,6 @@ const groupRoom = (groupId: string) => `group:${groupId}`;
 const toJson = (v: LiveLocation | LiveLocation[]) =>
   v as unknown as Prisma.InputJsonValue;
 
-/**
- * In-memory live state of every active group session; drives all location /
- * SOS / trip mutations, room broadcasts and persistence. Process-local —
- * horizontal scaling would need a socket.io Redis adapter.
- */
 @Injectable()
 export class LiveSessionService {
   private readonly logger = new Logger(LiveSessionService.name);
@@ -64,8 +59,6 @@ export class LiveSessionService {
   setServer(server: Server): void {
     this.server = server;
   }
-
-  // Connection lifecycle
 
   async handleConnection(client: Socket): Promise<ConnectionContext> {
     const token = getHandshakeToken(client);
@@ -130,8 +123,6 @@ export class LiveSessionService {
     }
   }
 
-  // Location
-
   async updateLocation(
     userId: string,
     groupId: string,
@@ -157,8 +148,6 @@ export class LiveSessionService {
       sos: member.sos,
     });
   }
-
-  // SOS
 
   async startSos(userId: string, groupId: string): Promise<void> {
     const { group, member } = this.requireMember(groupId, userId);
@@ -218,8 +207,6 @@ export class LiveSessionService {
 
     this.broadcastToGroup(group, RealtimeEvent.SOS_ENDED, { userId });
   }
-
-  // Trips
 
   async startTrip(
     userId: string,
@@ -290,8 +277,6 @@ export class LiveSessionService {
     this.broadcastToGroup(group, RealtimeEvent.TRIP_ENDED, { userId });
   }
 
-  // Background maintenance
-
   @Interval(SCHEDULER_INTERVAL_MS)
   async sweep(): Promise<void> {
     const now = Date.now();
@@ -322,7 +307,6 @@ export class LiveSessionService {
   ): Promise<void> {
     const eta = member.destination?.estimatedArrival;
 
-    // Trip: remind 5 min out, then auto-SOS once the ETA elapses.
     if (eta !== undefined && !member.sos) {
       if (!member.tripReminderSent && eta < now + TRIP_REMINDER_LEAD_MS) {
         member.tripReminderSent = true;
@@ -339,7 +323,6 @@ export class LiveSessionService {
 
     if (!member.location || member.socketId) return;
 
-    // Disconnected: notify the group once, then snapshot to DB.
     if (
       !member.inactivityNotified &&
       member.location.time < now - INACTIVITY_NOTIFY_MS
@@ -359,8 +342,6 @@ export class LiveSessionService {
       await this.snapshotMember(group.groupId, member);
     }
   }
-
-  // Session building
 
   private async buildGroupSession(
     groupId: string,
@@ -427,7 +408,6 @@ export class LiveSessionService {
           tripReminderSent: false,
         };
       })
-      // Keep members we can place on the map, plus the joiner.
       .filter((m) => m.location !== null || m.userId === connectingUserId);
 
     return { groupId: group.id, groupName: group.groupName, members };
@@ -480,8 +460,6 @@ export class LiveSessionService {
     if (user) member.username = user.username;
   }
 
-  // Emit helpers
-
   private emitSessionInit(
     client: Socket,
     group: LiveGroup,
@@ -508,11 +486,6 @@ export class LiveSessionService {
     });
   }
 
-  /**
-   * One room emit to every device in the group — including the sender's other
-   * devices, so they stay in sync. The originating client ignores updates for
-   * its own userId.
-   */
   private broadcastToGroup(
     group: LiveGroup,
     event: string,
@@ -520,8 +493,6 @@ export class LiveSessionService {
   ): void {
     this.server.to(groupRoom(group.groupId)).emit(event, payload);
   }
-
-  // Persistence helpers
 
   private resetTrip(member: LiveMember): void {
     member.tripId = null;
